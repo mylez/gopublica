@@ -11,14 +11,6 @@ import (
 	"strings"
 )
 
-/*
-
-
-
-500	Internal Server Error – We had a problem with our server. Try again later.
-503	Service Unavailable – We’re temporarially offline for maintanance. Please try again later.
-*/
-
 var (
 	ErrBadRequest          = errors.New("400 Bad Request - Your request sucks")
 	ErrUnauthorized        = errors.New("401 Unauthorized - Your API key is wrong")
