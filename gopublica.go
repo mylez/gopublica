@@ -57,6 +57,10 @@ type CosponsorsResult struct {
 	} `json:"results"`
 }
 
+func SetAPIKey(key string) {
+	apiKey = key
+}
+
 // :congress/bills/:bill-id/cosponsors.js
 //
 func GetCosponsorsForBill(congress, billId string) (*CosponsorsResult, error) {
