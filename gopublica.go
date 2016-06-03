@@ -70,6 +70,18 @@ func GetCosponsorsForBill(congress, billId string) (*CosponsorsResult, error) {
 	res := &CosponsorsResult{}
 	json.Unmarshal(bod, res)
 
+	println()
+	println()
+	println()
+	println()
+	println()
+	println(string(bod))
+	println()
+	println()
+	println()
+	println()
+	println()
+
 	if err != nil {
 		return nil, err
 	}
