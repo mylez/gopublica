@@ -33,8 +33,8 @@ var (
 )
 
 type Result struct {
-	Status string `json:"status"`
-	//Copyright string `json:"copyright"`
+	Status    string `json:"status"`
+	Copyright string `json:"copyright"`
 }
 
 type CosponsorsResult struct {
@@ -65,21 +65,16 @@ func SetAPIKey(key string) {
 //
 func GetCosponsorsForBill(congress, billId string) (*CosponsorsResult, error) {
 	rsp, err := get(congress, "bills", billId, "cosponsors")
-
 	if err != nil {
 		return nil, err
 	}
-
 	bod, _ := ioutil.ReadAll(rsp.Body)
 	res := &CosponsorsResult{}
 	json.Unmarshal(bod, res)
-
 	if err != nil {
 		return nil, err
 	}
-
 	code, _ := strconv.Atoi(res.Result.Status)
-
 	if !statusOk(code) && res.Status != "OK" {
 		return nil, getError(code)
 	}
@@ -87,35 +82,42 @@ func GetCosponsorsForBill(congress, billId string) (*CosponsorsResult, error) {
 	return res, nil
 }
 
+// get will create an http request with the GET method
 func get(parts ...string) (*http.Response, error) {
 	return do(http.NewRequest("GET", makeUrl(parts), nil))
 }
 
+// do will set the api key header required by propublica
+// api and execute the http request. it will check for
+// erroneous status codes, however the propublica api
+// is pretty inconsistent with status.
 func do(req *http.Request, err error) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	req.Header.Set("X-API-Key", apiKey)
-
 	rsp, err := http.DefaultClient.Do(req)
-
 	if !statusOk(rsp.StatusCode) {
 		return nil, getError(rsp.StatusCode)
 	}
-
 	return rsp, err
 }
 
+// makeUrl will take a slice of strings, join them
+// with a slash ("/") and build an api request url
 func makeUrl(parts []string) string {
 	url := baseUrl + strings.Join(parts, "/") + fileType
 	return url
 }
 
+// statusOk will return true only if the
+// status code passed is in the range [200, 299]
 func statusOk(code int) bool {
 	return code >= 200 && code < 300
 }
 
+// getError will return the appropriate error
+// object for the code
 func getError(code int) error {
 	switch code {
 	case 400:
@@ -144,6 +146,11 @@ func getError(code int) error {
 	return ErrUnkown
 }
 
+// getApiKey will first attempt to look for the api key
+// in the ENV variable PROPUBLICA_API_KEY. if it is not
+// found then it will attempt to read the file
+// .propublica-api-key in the home directory of the
+// current user
 func getApiKey() string {
 	key := os.Getenv("PROPUBLICA_API_KEY")
 	if key != "" {
