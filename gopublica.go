@@ -1,13 +1,11 @@
 package gopublica
 
 import (
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/user"
-	"strconv"
 	"strings"
 )
 
@@ -22,7 +20,7 @@ var (
 	ErrTeapot              = errors.New("418 I’m a teapot")
 	ErrTooManyRequests     = errors.New("429 Too Many Requests - You’re requesting too many kittens! Slow down!")
 	ErrInternalServerError = errors.New("500 Internal Server Error - We had a problem with our server. Try again later.")
-	ErrServiceUnavailable  = errors.New("503 Service Unavailable - We’re temporarially offline for maintanance. Please try again later.")
+	ErrServiceUnavailable  = errors.New("503 Service Unavailable - We’re temporarially offline for maintenance. Please try again later.")
 	ErrUnkown              = errors.New("Unkown error")
 )
 
@@ -37,49 +35,8 @@ type Result struct {
 	Copyright string `json:"copyright"`
 }
 
-type CosponsorsResult struct {
-	Result
-	Results []struct {
-		Cosponsors []struct {
-			CosponsorId string `json:"cosponsor_id"`
-			Name        string `json:"name"`
-			Date        string `json:"date"`
-		} `json:"cosponsors"`
-		Congress              string `json:"congress"`
-		Number                string `json:"number"`
-		BillUri               string `json:"bill_uri"`
-		Title                 string `json:"title"`
-		SponsorId             string `json:"sponsor_id"`
-		IntroducedDate        string `json:"introduced_date"`
-		Committees            string `json:"committees"`
-		LatestMajorActionDate string `json:"latest_major_action_date"`
-		LatestMajorAction     string `json:"latest_major_action"`
-	} `json:"results"`
-}
-
 func SetAPIKey(key string) {
 	apiKey = key
-}
-
-// :congress/bills/:bill-id/cosponsors.js
-//
-func GetCosponsorsForBill(congress, billId string) (*CosponsorsResult, error) {
-	rsp, err := get(congress, "bills", billId, "cosponsors")
-	if err != nil {
-		return nil, err
-	}
-	bod, _ := ioutil.ReadAll(rsp.Body)
-	res := &CosponsorsResult{}
-	json.Unmarshal(bod, res)
-	if err != nil {
-		return nil, err
-	}
-	code, _ := strconv.Atoi(res.Result.Status)
-	if !statusOk(code) && res.Status != "OK" {
-		return nil, getError(code)
-	}
-
-	return res, nil
 }
 
 // get will create an http request with the GET method
@@ -147,7 +104,7 @@ func getError(code int) error {
 }
 
 // getApiKey will first attempt to look for the api key
-// in the ENV variable PROPUBLICA_API_KEY. if it is not
+// in the env variable PROPUBLICA_API_KEY. if it is not
 // found then it will attempt to read the file
 // .propublica-api-key in the home directory of the
 // current user
